@@ -719,7 +719,7 @@ void InfinitynodeList::on_btnSetup_clicked()
 
             if ( mBurnPrepareTx=="" )  {
                ui->labelMessage->setStyleSheet("QLabel { font-size:14px;color: red}");
-               ui->labelMessage->setText(tr("ERROR: Failed to prepare burn transaction." ));
+               ui->labelMessage->setText(tr("ERROR: Failed to prepare burn transaction, please send all coins to new address and try again" ));
             }
             nodeSetupStep( "setupWait", tr("Preparing burn transaction").toStdString());
         }
