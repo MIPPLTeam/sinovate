@@ -128,10 +128,11 @@ public:
         consensus.nStartPoSHeight = 900000;
         consensus.nStakeMinDepth = 14400;
         consensus.posLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.posLimitV2 = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.posLimitV2Height = 902000;
         consensus.fPoSNoRetargeting = false;
         consensus.nPoS_EMATargetTimespan = 30 * 60;
         consensus.nTimeSlotLength = 15;
-        consensus.nPoSMinStakeValue = 1;
         consensus.nPoSModSwitch = 0; // the same height is used for updatemetadata fork
         
         // addresses
@@ -300,10 +301,11 @@ public:
         consensus.nStartPoSHeight = 1000;
         consensus.nStakeMinDepth = 10;
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.posLimitV2 = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.posLimitV2Height = 3000;
         consensus.fPoSNoRetargeting = false;
         consensus.nPoS_EMATargetTimespan = 30 * 60;
         consensus.nTimeSlotLength = 15;
-        consensus.nPoSMinStakeValue = 1;
         consensus.nPoSModSwitch = 5500;
 
         consensus.signet_blocks = false;
@@ -572,10 +574,11 @@ public:
         consensus.nStartPoSHeight = 250;
         consensus.nStakeMinDepth = 10;
         consensus.posLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.posLimitV2 = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.posLimitV2Height = 3000;
         consensus.fPoSNoRetargeting = true;
         consensus.nPoS_EMATargetTimespan = 30 * 60;
         consensus.nTimeSlotLength = 15;
-        consensus.nPoSMinStakeValue = 1;
         consensus.nPoSModSwitch = 0;
 
         consensus.devAddress2PubKey = "d63bf3a5822bb2f7ac9ced84ae2c1f319c4253e2";

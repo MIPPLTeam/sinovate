@@ -2052,9 +2052,6 @@ bool CWallet::StakeableCoins(std::vector<CStakeableOutput>* pCoins, uint64_t& nW
         const CBlockIndex* pindex = nullptr;
 
         for (unsigned int i = 0; i < wtx.tx->vout.size(); i++) {
-            if (wtx.tx->vout[i].nValue < Params().GetConsensus().nPoSMinStakeValue * COIN) {
-                continue;
-            }
 
             if (IsLockedCoin(entry.first, i))
                 continue;
