@@ -123,12 +123,13 @@ struct Params {
 
     // proof-of-stake: activation and params
     int nStartPoSHeight;
+    int posLimitV2Height;
     int nStakeMinDepth;
     int nTimeSlotLength;
     uint256 posLimit;
+    uint256 posLimitV2;
     bool fPoSNoRetargeting;
     int64_t nPoS_EMATargetTimespan;
-    int nPoSMinStakeValue;
     int nPoSModSwitch;
 
     // proof-of-stake: helper funcs
