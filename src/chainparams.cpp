@@ -129,7 +129,7 @@ public:
         consensus.nStakeMinDepth = 14400;
         consensus.posLimit = uint256S("0000000000001fffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.posLimitV2 = uint256S("00000fffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-        consensus.posLimitV2Height = 902000;
+        consensus.posLimitV2Height = 905555;
         consensus.fPoSNoRetargeting = false;
         consensus.nPoS_EMATargetTimespan = 30 * 60;
         consensus.nTimeSlotLength = 15;
