@@ -82,17 +82,3 @@ bool CSinStake::ContextCheck(int nHeight)
     // All good
     return true;
 }
-
-// Verify stake value checks
-bool CSinStake::ValueCheck()
-{
-    const Consensus::Params& consensusParams = Params().GetConsensus();
-
-    if (GetValue() < (consensusParams.nPoSMinStakeValue * COIN)) {
-        return error("%s: stake input below min value threshold", __func__);
-    }
-
-    // All good
-    return true;
-}
-

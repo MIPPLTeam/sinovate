@@ -164,7 +164,11 @@ unsigned int Lwma3CalculateNextWorkRequired(const CBlockIndex* pindexLast, const
     const int64_t k = N * (N + 1) * T / 2;
 
     const int64_t height = pindexLast->nHeight;
-    const arith_uint256 ProofLimit = UintToArith256(fProofOfStake ? params.posLimit : params.powLimit);
+    arith_uint256 ProofLimit = UintToArith256(fProofOfStake ? params.posLimit : params.powLimit);
+
+    if (fProofOfStake && (height + 1 > params.posLimitV2Height)) {
+        ProofLimit = UintToArith256(params.posLimitV2);
+    }
 
     // New coins should just give away first N blocks before using this algorithm.
     if (height < N) { return ProofLimit.GetCompact(); }
