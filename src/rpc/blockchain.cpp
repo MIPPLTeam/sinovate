@@ -184,11 +184,11 @@ double GetEstimatedAnnualROI(const CBlockIndex* tip)
     const CBlockIndex* pindex = pindexBestHeader == 0 ? tip : pindexBestHeader;
     int nHeight = pindex ? pindex->nHeight : 0;
     const Consensus::Params& consensusParams = Params().GetConsensus();
-    double subsidy = GetBlockSubsidy(nHeight, consensusParams);
+    double subsidy = GetBlockSubsidy(nHeight, consensusParams, true, true);
     if(networkWeight > 0)
     {
-        // Formula: 100 * 675 blocks/day * 365 days * subsidy) / Network Weight
-        result = 24637500 * subsidy / networkWeight;
+        // Formula: 100 * 720 blocks/day * 365 days * subsidy) / Network Weight
+        result = 26280000 * subsidy / networkWeight;
     }
 
     return result;
@@ -319,6 +319,34 @@ static RPCHelpMan getestimatedannualroi()
                 RPCExamples{
                     HelpExampleCli("getestimatedannualroi", "")
             + HelpExampleRpc("getestimatedannualroi", "")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    CBlockIndex* tip;
+    {
+        ChainstateManager& chainman = EnsureAnyChainman(request.context);
+        LOCK(cs_main);
+        tip = chainman.ActiveChain().Tip();
+    }
+    return GetEstimatedAnnualROI(tip);
+},
+    };
+}
+
+static RPCHelpMan getposinfo()
+{
+    return RPCHelpMan{"getposinfo",
+                "\nReturns staking related information.\n"
+                "This calculation assumes an always-active staker with no downtimes, so your mileage may vary.\n",
+                {
+                    {"delta", RPCArg::Type::NUM, RPCArg::Optional::NO, "Span of blocks (since tip) to pull stats from."},
+                    {"timeout", RPCArg::Type::NUM, RPCArg::Default{0}, "Time in milliseconds to wait for a response. 0 indicates no timeout."},
+                },
+                RPCResult{
+                    RPCResult::Type::NUM, "", "The percentage of PoS blocks in the chosen span"},
+                RPCExamples{
+                    HelpExampleCli("getposinfo", "")
+            + HelpExampleRpc("getposinfo", "")
                 },
         [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
 {
