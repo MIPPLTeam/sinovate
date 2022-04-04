@@ -686,42 +686,9 @@ void InfinitynodeList::on_btnSetup_clicked()
         nodeSetupEnableOrderUI(true, mOrderid, mInvoiceid);
         ui->labelMessage->setText(QString::fromStdString(strprintf(tr("Order placed successfully. Order ID #%d Invoice ID #%d").toStdString(), mOrderid, mInvoiceid)));
 
-        // move prepare-burn sequence before invoice payment (requested by BEET Feb 22)
-        mBurnTx = nodeSetupGetBurnTx();
-        QString strSelectedBurnTx = ui->comboBurnTx->currentData().toString();
-        if (strSelectedBurnTx=="WAIT")  strSelectedBurnTx = "NEW";
-
-        if ( mBurnTx=="" && strSelectedBurnTx!="NEW")   {
-            mBurnTx = strSelectedBurnTx;
-            nodeSetupSetBurnTx(mBurnTx);
-        }
-
-        if ( mBurnTx!="" )   {   // skip to check burn tx
-            mBurnAddress = nodeSetupGetOwnerAddressFromBurnTx(mBurnTx);
-
-            if ( !burnSendTimer->isActive() )  {
-                burnSendTimer->start(20000);    // check every 20 secs
-            }
-            // amount necessary for updatemeta may be already spent, send again.
-            if (nodeSetupUnlockWallet()) {
-                mMetaTx = nodeSetupSendToAddress( mBurnAddress, NODESETUP_UPDATEMETA_AMOUNT , NULL );
-                nodeSetupStep( "setupWait", tr("Maturing, please wait...").toStdString());
-            }
-        }
-        else    {   // burn tx not made yet
-            mBurnAddress = nodeSetupGetNewAddress();
-            int nMasternodeBurn = nodeSetupGetBurnAmount();
-
-            if (nodeSetupUnlockWallet()) {
-                mBurnPrepareTx = nodeSetupSendToAddress( mBurnAddress, nMasternodeBurn, burnPrepareTimer );
-            }
-
-            if ( mBurnPrepareTx=="" )  {
-               ui->labelMessage->setStyleSheet("QLabel { font-size:14px;color: red}");
-               ui->labelMessage->setText(tr("ERROR: Failed to prepare burn transaction, please send all coins to new address and try again" ));
-            }
-            nodeSetupStep( "setupWait", tr("Preparing burn transaction").toStdString());
-        }
+        // get invoice data and do payment
+        QString strAmount, strStatus, paymentAddress;
+        strStatus = nodeSetupCheckInvoiceStatus();
     }
     else    {
         ui->labelMessage->setStyleSheet("QLabel { font-size:14px;color: red}");
@@ -2140,4 +2107,3 @@ void InfinitynodeList::updateDisplayUnit()
 }
 
 // --
-
