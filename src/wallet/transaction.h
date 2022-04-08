@@ -268,6 +268,8 @@ public:
     CAmount GetDebit(const isminefilter& filter) const;
     CAmount GetCredit(const isminefilter& filter) const;
     CAmount GetImmatureCredit(bool fUseCache = true) const;
+    /* proof-of-stake funcs */
+    CAmount GetStakeCredit(const bool fUseCache = true) const;
     // TODO: Remove "NO_THREAD_SAFETY_ANALYSIS" and replace it with the correct
     // annotation "EXCLUSIVE_LOCKS_REQUIRED(pwallet->cs_wallet)". The
     // annotation "NO_THREAD_SAFETY_ANALYSIS" was temporarily added to avoid
@@ -275,9 +277,7 @@ public:
     CAmount GetAvailableCredit(bool fUseCache = true, const isminefilter& filter = ISMINE_SPENDABLE) const NO_THREAD_SAFETY_ANALYSIS;
     CAmount GetImmatureWatchOnlyCredit(const bool fUseCache = true) const;
     CAmount GetChange() const;
-    
-    /* proof-of-stake funcs */
-    CAmount GetStakeCredit(const bool fUseCache = true) const;
+
     bool IsCoinStake() const { return tx->IsCoinStake(); }
 
     /** Get the marginal bytes if spending the specified output from this transaction */

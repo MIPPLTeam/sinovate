@@ -1913,15 +1913,6 @@ std::set<uint256> CWalletTx::GetConflicts() const
     return result;
 }
 
-CAmount CWalletTx::GetStakeCredit(const bool fUseCache) const
-{
-    if ((IsCoinStake() && GetBlocksToMaturity() > 0) && IsInMainChain()) {
-        return GetCachableAmount(IMMATURE_CREDIT, ISMINE_SPENDABLE, !fUseCache);
-    }
-
-    return 0;
-}
-
 // Rebroadcast transactions from the wallet. We do this on a random timer
 // to slightly obfuscate which transactions come from our wallet.
 //
