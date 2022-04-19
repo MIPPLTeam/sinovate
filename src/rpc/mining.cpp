@@ -603,7 +603,9 @@ static RPCHelpMan getstakinginfo()
     obj.pushKV("pooledtx",         (uint64_t)mempool.size());
     obj.pushKV("chain",            Params().NetworkIDString());
     obj.pushKV("warnings",         GetWarnings(false).original);
-    obj.pushKV("staking",          pStakerStatus.get()->IsActive());
+    if (ptrStakerStatus)  {
+        obj.pushKV("staking",          ptrStakerStatus->IsActive());
+    }
     std::vector<CStakeableOutput> availableCoins;
     if (pwallet && !pwallet->StakeableCoins(&availableCoins, nWeight)) {
         obj.pushKV("staking_available", 0);
@@ -611,7 +613,9 @@ static RPCHelpMan getstakinginfo()
         obj.pushKV("staking_available", (int)availableCoins.size());
     }
     obj.pushKV("connections", (node.connman->GetNodeCount(ConnectionDirection::Both) > 0));
-    obj.pushKV("unlockedwallet", !pwallet->IsLocked());
+    if (pwallet) {
+        obj.pushKV("unlockedwallet", !pwallet->IsLocked());
+    }
     if (ptrStakerStatus) {
         obj.pushKV("blocks_since_last_try", (int)(nHeight - ptrStakerStatus->GetLastHeight()));
         obj.pushKV("hash_last_try", ptrStakerStatus->GetLastHash().GetHex());
