@@ -113,6 +113,23 @@ CBlockPolicyEstimator& EnsureAnyFeeEstimator(const std::any& context)
     return EnsureFeeEstimator(EnsureAnyNodeContext(context));
 }
 
+static CBlock GetBlockChecked(const CBlockIndex* pblockindex)
+{
+    CBlock block;
+    if (IsBlockPruned(pblockindex)) {
+        throw JSONRPCError(RPC_MISC_ERROR, "Block not available (pruned data)");
+    }
+
+    if (!ReadBlockFromDisk(block, pblockindex, Params().GetConsensus())) {
+        // Block not found on disk. This could be because we have the block
+        // header in our index but not yet have the block or did not accept the
+        // block.
+        throw JSONRPCError(RPC_MISC_ERROR, "Block not found on disk");
+    }
+
+    return block;
+}
+
 /* Calculate the difficulty for a given block index.
  */
 double GetDifficulty(const CBlockIndex* blockindex)
@@ -184,11 +201,11 @@ double GetEstimatedAnnualROI(const CBlockIndex* tip)
     const CBlockIndex* pindex = pindexBestHeader == 0 ? tip : pindexBestHeader;
     int nHeight = pindex ? pindex->nHeight : 0;
     const Consensus::Params& consensusParams = Params().GetConsensus();
-    double subsidy = GetBlockSubsidy(nHeight, consensusParams);
+    double subsidy = GetBlockSubsidy(nHeight, consensusParams, true, true);
     if(networkWeight > 0)
     {
-        // Formula: 100 * 675 blocks/day * 365 days * subsidy) / Network Weight
-        result = 24637500 * subsidy / networkWeight;
+        // Formula: 100 * 720 blocks/day * 365 days * subsidy) / Network Weight
+        result = 26280000 * subsidy / networkWeight;
     }
 
     return result;
@@ -329,6 +346,72 @@ static RPCHelpMan getestimatedannualroi()
         tip = chainman.ActiveChain().Tip();
     }
     return GetEstimatedAnnualROI(tip);
+},
+    };
+}
+
+static RPCHelpMan getposstats()
+{
+    return RPCHelpMan{"getposstats",
+                "\nReturns proof-of-stake related historical stats.\n",
+                {
+                    {"delta", RPCArg::Type::NUM, RPCArg::Optional::NO, "Span of blocks (since tip) to pull stats from."},
+                },
+                RPCResult{
+                    RPCResult::Type::OBJ, "", "",
+                    {
+                        {RPCResult::Type::NUM, "blocks", "The amount of PoS blocks in the selected span"},
+                        {RPCResult::Type::NUM, "distribution", "The percentage of PoS blocks in the chosen span"},
+                        {RPCResult::Type::NUM, "avg_input", "The average value of inputs in the chosen span"},
+                    }},
+                RPCExamples{
+                    HelpExampleCli("getposstats", "100")
+            + HelpExampleRpc("getposstats", "100")
+                },
+        [&](const RPCHelpMan& self, const JSONRPCRequest& request) -> UniValue
+{
+    double nDelta = request.params[0].get_int();
+    double nDistribution = 0;
+    CBlockIndex* tip;
+    {
+        ChainstateManager& chainman = EnsureAnyChainman(request.context);
+        LOCK(cs_main);
+        tip = chainman.ActiveChain().Tip();
+    }
+    double nPoSCount = CountPoS(tip, (tip->nHeight - nDelta));
+    if (nPoSCount > 0) {
+        nDistribution = (nPoSCount / nDelta) * 100;
+    } else {
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "No proof-of-stake blocks for the selected span of blocks");
+    }
+
+    CBlockIndex* pindex = tip;
+    CAmount nTotalStake = 0;
+    while (pindex && pindex->pprev && (pindex->nHeight > (tip->nHeight - nDelta))) {
+        if (pindex->IsProofOfStake()) {
+            CBlock block;
+            {
+                ChainstateManager& chainman = EnsureAnyChainman(request.context);
+                LOCK(cs_main);
+
+                block = GetBlockChecked(pindex);
+                std::unique_ptr<CStakeInput> stakeInput;
+                if (!chainman.ActiveChainstate().LoadStakeInput(block, pindex->pprev, stakeInput)) {
+                    throw JSONRPCError(RPC_INTERNAL_ERROR, "Cannot get proof of stake hash"); 
+                }
+                nTotalStake += stakeInput->GetValue();
+            }
+        }
+        pindex = pindex->pprev;
+    }
+
+    CAmount avgStake = nTotalStake / nPoSCount;
+
+    UniValue ret(UniValue::VOBJ);
+    ret.pushKV("blocks", nPoSCount);
+    ret.pushKV("distribution", nDistribution);
+    ret.pushKV("avg_input", avgStake);
+    return ret;
 },
     };
 }
@@ -1023,23 +1106,6 @@ static RPCHelpMan getblockheader()
     return blockheaderToJSON(tip, pblockindex);
 },
     };
-}
-
-static CBlock GetBlockChecked(const CBlockIndex* pblockindex)
-{
-    CBlock block;
-    if (IsBlockPruned(pblockindex)) {
-        throw JSONRPCError(RPC_MISC_ERROR, "Block not available (pruned data)");
-    }
-
-    if (!ReadBlockFromDisk(block, pblockindex, Params().GetConsensus())) {
-        // Block not found on disk. This could be because we have the block
-        // header in our index but not yet have the block or did not accept the
-        // block.
-        throw JSONRPCError(RPC_MISC_ERROR, "Block not found on disk");
-    }
-
-    return block;
 }
 
 static CBlockUndo GetUndoChecked(const CBlockIndex* pblockindex)
@@ -2892,6 +2958,8 @@ static const CRPCCommand commands[] =
     { "blockchain",         &scantxoutset,                       },
 //>SIN
     { "blockchain",         &scantxouttimelock,                  },
+    { "blockchain",         &getestimatedannualroi               },
+    { "blockchain",         &getposstats                         },
 //<SIN
     { "blockchain",         &getblockfilter,                     },
 

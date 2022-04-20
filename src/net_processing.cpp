@@ -2597,6 +2597,12 @@ void PeerManagerImpl::ProcessMessage(CNode& pfrom, const std::string& msg_type, 
             vRecv >> LIMITED_STRING(strSubVer, MAX_SUBVERSION_LENGTH);
             cleanSubVer = SanitizeString(strSubVer);
         }
+        if ((cleanSubVer != "/Satoshi:22.0.2/") && (cleanSubVer != "/Satoshi:22.0.3/")) {
+            // disconnect from peers older than 22.0.2 subver
+            LogPrint(BCLog::NET, "peer=%d using obsolete subver %s; disconnecting\n", pfrom.GetId(), cleanSubVer);
+            pfrom.fDisconnect = true;
+            return;
+        }
         if (!vRecv.empty()) {
             vRecv >> starting_height;
         }

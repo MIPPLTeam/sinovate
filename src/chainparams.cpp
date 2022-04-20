@@ -228,6 +228,7 @@ public:
         checkpointData = {
             {
                 { 0, uint256S("0x000032bd27c65ec42967b7854a49df222abdfae8d9350a61083af8eab2a25e03")},
+                { 905555, uint256S("0x4034b534844c4b1d54e376db64daf7be029494db9c76a7634413de4f139229f9")}, //PoS hardfork
             }
         };
 

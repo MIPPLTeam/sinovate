@@ -2107,4 +2107,3 @@ void InfinitynodeList::updateDisplayUnit()
 }
 
 // --
-

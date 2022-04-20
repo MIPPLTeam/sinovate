@@ -374,6 +374,7 @@ public:
             result.unconfirmed_watch_only_balance = bal.m_watchonly_untrusted_pending;
             result.immature_watch_only_balance = bal.m_watchonly_immature;
         }
+        result.stake = bal.m_mine_stake;
         return result;
     }
     bool tryGetBalances(WalletBalances& balances, uint256& block_hash) override

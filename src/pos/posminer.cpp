@@ -310,7 +310,7 @@ void StakerCtx::StakerPipe()
 
 
         // Check for node sync
-        if (m_chainman.ActiveChainstate().IsInitialBlockDownload()) {
+        if ((Params().NetworkIDString() == CBaseChainParams::MAIN) && m_chainman.ActiveChainstate().IsInitialBlockDownload()) {
             LogPrintf("%s : node not synced yet, checking again in %d seconds...\n", __func__, nAverageSpacing);
             if (!g_posminer_interrupt.sleep_for(std::chrono::seconds(nAverageSpacing))) {
                 return;

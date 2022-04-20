@@ -61,6 +61,7 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "waitforblockheight", 0, "height" },
     { "waitforblockheight", 1, "timeout" },
     { "waitforblock", 1, "timeout" },
+    { "getposstats", 0, "delta" },
     { "waitfornewblock", 0, "timeout" },
     { "listtransactions", 1, "count" },
     { "listtransactions", 2, "skip" },
