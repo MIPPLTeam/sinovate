@@ -1243,7 +1243,7 @@ void InfinitynodeList::nodeSetupInitialize()   {
     // combo billing
     int i;
     for (i=0; i<sizeof(billingOptions)/sizeof(billingOptions[0]); i++)    {
-        std::string option = billingOptions[i];
+        std::string option = tr(billingOptions[i].c_str()).toStdString();
         ui->comboBilling->addItem(QString::fromStdString(option), QVariant(i));
     }
     ui->comboBilling->setCurrentIndex(2);
@@ -1564,7 +1564,7 @@ int InfinitynodeList::nodeSetupAPIAddClient( QString firstName, QString lastName
     int ret = 0;
 
     QString commit = QString::fromStdString(getGitCommitId());
-    //QString commit = "63c3ac640";
+    //QString commit = "sintest";
     QString Service = QString::fromStdString("AddClient");
     QUrl url( InfinitynodeList::NODESETUP_ENDPOINT_BASIC );
     QUrlQuery urlQuery( url );
