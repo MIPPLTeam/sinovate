@@ -673,6 +673,36 @@ void InfinitynodeList::on_btnSetup_clicked()
     int orderid, invoiceid, productid;
     QString strBillingCycle = QString::fromStdString(billingOptions[ui->comboBilling->currentData().toInt()]);
 
+    // launch prepareTx before creating bill 
+    QString strPrivateKey, strPublicKey, strDecodePublicKey, strAddress, strNodeIp;
+
+    mBurnTx = nodeSetupGetBurnTx();
+    QString strSelectedBurnTx = ui->comboBurnTx->currentData().toString();
+    if (strSelectedBurnTx=="WAIT")  strSelectedBurnTx = "NEW";
+
+//LogPrintf("nodeSetupCheckInvoiceStatus mBurnTx = %s, selected=%s \n", mBurnTx.toStdString(), strSelectedBurnTx.toStdString());
+
+    if ( mBurnTx=="" && strSelectedBurnTx!="NEW")   {
+        mBurnTx = strSelectedBurnTx;
+        nodeSetupSetBurnTx(mBurnTx);
+    }
+
+    if ( ! (mBurnTx!="") )   {     // burn tx not made yet
+        mBurnAddress = nodeSetupGetNewAddress();
+        int nMasternodeBurn = nodeSetupGetBurnAmount();
+
+        if (nodeSetupUnlockWallet()) {
+            mBurnPrepareTx = nodeSetupSendToAddress( mBurnAddress, nMasternodeBurn, NULL );
+        }
+
+        if ( mBurnPrepareTx=="" )  {
+            ui->labelMessage->setStyleSheet("QLabel { font-size:14px;color: red}");
+            ui->labelMessage->setText(tr("ERROR: Failed to prepare burn transaction." ));
+            return;
+        }
+        nodeSetupStep( "setupWait", tr("Preparing burn transaction").toStdString());
+    }
+
     if ( ! (mOrderid > 0 && mInvoiceid > 0) ) {     // place new order if there is none already
         mOrderid = nodeSetupAPIAddOrder( mClientid, strBillingCycle, mProductIds, mInvoiceid, email, pass, strError );
     }
@@ -969,18 +999,7 @@ QString InfinitynodeList::nodeSetupCheckInvoiceStatus()  {
             }
         }
         else    {   // burn tx not made yet
-            mBurnAddress = nodeSetupGetNewAddress();
-            int nMasternodeBurn = nodeSetupGetBurnAmount();
-
-            if (nodeSetupUnlockWallet()) {
-                mBurnPrepareTx = nodeSetupSendToAddress( mBurnAddress, nMasternodeBurn, burnPrepareTimer );
-            }
-
-            if ( mBurnPrepareTx=="" )  {
-               ui->labelMessage->setStyleSheet("QLabel { font-size:14px;color: red}");
-               ui->labelMessage->setText(tr("ERROR: Failed to prepare burn transaction." ));
-            }
-            nodeSetupStep( "setupWait", tr("Preparing burn transaction").toStdString());
+            nodeSetupCheckBurnPrepareConfirmations();
         }
     }
 
@@ -1040,6 +1059,10 @@ QString InfinitynodeList::nodeSetupGetOwnerAddressFromBurnTx( QString burnTx )  
 
 void InfinitynodeList::nodeSetupCheckBurnPrepareConfirmations()   {
     if(!isSynced()) return;
+
+    if ( burnPrepareTimer!=NULL && !burnPrepareTimer->isActive() )  {
+        burnPrepareTimer->start(20000);
+    }
 
     UniValue objConfirms = nodeSetupGetTxInfo( mBurnPrepareTx, "confirmations" );
     int numConfirms = objConfirms.get_int();
