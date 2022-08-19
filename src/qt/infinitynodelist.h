@@ -104,7 +104,7 @@ public Q_SLOTS:
     UniValue nodeSetupCallRPC(std::string args);
     void nodeSetupEnableOrderUI( bool bEnable, int orderID = 0, int invoiceID = 0 );
     int nodeSetupAPIAddClient( QString firstName, QString lastName, QString email, QString password, QString& strError );
-    int nodeSetupAPIAddOrder( int clientid, QString billingCycle, QString& productids, int& invoiceid, QString email, QString password, QString& strError );
+    int nodeSetupAPIAddOrder( int clientid, QString billingCycle, QString& productids, int& invoiceid, QString email, QString password, QString tierValue, QString& strError );
     bool nodeSetupAPIGetInvoice( int invoiceid, QString& strAmount, QString& strStatus, QString& paymentAddress, QString email, QString password, QString& strError );
     std::map<int,std::string> nodeSetupAPIListInvoices( QString email, QString password, QString& strError );
     QJsonObject nodeSetupAPIInfo( int serviceid, int clientid, QString email, QString password, QString& strError );
@@ -118,6 +118,7 @@ public Q_SLOTS:
     int  nodeSetupGetOrderId( int& invoiceid, QString& mProductIds );
     void nodeSetupSetOrderId( int orderid , int invoiceid, QString strProductIds );
     QString  nodeSetupGetBurnTx( );
+    QString nodeSetupGetNodeTier();
     void nodeSetupSetBurnTx( QString strBurnTx );
     QString nodeSetupGetPaymentTx( );
     void nodeSetupSetPaymentTx( QString txHash );

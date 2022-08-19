@@ -704,7 +704,7 @@ void InfinitynodeList::on_btnSetup_clicked()
     }
 
     if ( ! (mOrderid > 0 && mInvoiceid > 0) ) {     // place new order if there is none already
-        mOrderid = nodeSetupAPIAddOrder( mClientid, strBillingCycle, mProductIds, mInvoiceid, email, pass, strError );
+        mOrderid = nodeSetupAPIAddOrder( mClientid, strBillingCycle, mProductIds, mInvoiceid, email, pass, nodeSetupGetNodeTier(), strError );
     }
 
     if (mInvoiceid==0)  {
@@ -1434,6 +1434,22 @@ int InfinitynodeList::nodeSetupGetBurnAmount()    {
     return nMasternodeBurn;
 }
 
+QString InfinitynodeList::nodeSetupGetNodeTier()    {
+    QString strNodeTier = "";
+
+    if ( ui->radioLILNode->isChecked() )    strNodeTier = "MINI";
+    if ( ui->radioMIDNode->isChecked() )    strNodeTier = "MID";
+    if ( ui->radioBIGNode->isChecked() )    strNodeTier = "BIG";
+
+    QString strSelectedBurnTx = ui->comboBurnTx->currentData().toString();
+    if (strSelectedBurnTx!="NEW" && strSelectedBurnTx!="WAIT")   {
+        QString currentText =  ui->comboBurnTx->currentText();
+        strNodeTier = currentText.section(" ",0,0);    // burn tx re-used, ignore radios
+    }
+
+    return strNodeTier;
+}
+
 bool InfinitynodeList::nodeSetupCheckFunds( CAmount invoiceAmount )   {
 
     bool bRet = false;
@@ -1622,7 +1638,8 @@ int InfinitynodeList::nodeSetupAPIAddClient( QString firstName, QString lastName
     return ret;
 }
 
-int InfinitynodeList::nodeSetupAPIAddOrder( int clientid, QString billingCycle, QString& productids, int& invoiceid, QString email, QString password, QString& strError )  {
+int InfinitynodeList::nodeSetupAPIAddOrder( int clientid, QString billingCycle, QString& productids, int& invoiceid, 
+    QString email, QString password, QString tierValue, QString& strError )  {
     int orderid = 0;
 
     QString Service = QString::fromStdString("AddOrder");
@@ -1636,10 +1653,11 @@ int InfinitynodeList::nodeSetupAPIAddOrder( int clientid, QString billingCycle, 
     urlQuery.addQueryItem("paymentmethod", "sin");
     urlQuery.addQueryItem("email", email);
     urlQuery.addQueryItem("password2", password);
+    urlQuery.addQueryItem("tier", tierValue);
     url.setQuery( urlQuery );
 
     QNetworkRequest request( url );
-//LogPrintf("nodeSetup::AddOrder -- %s\n", url.toString().toStdString());
+LogPrintf("nodeSetup::AddOrder -- %s\n", url.toString().toStdString());
     QNetworkReply *reply = ConnectionManager->get(request);
     QEventLoop loop;
 
