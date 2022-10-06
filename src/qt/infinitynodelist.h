@@ -205,6 +205,7 @@ private Q_SLOTS:
     void showContextDINColumnsMenu(const QPoint &);
     void nodeSetupDINColumnToggle(int nColumn );
     void on_checkDINNode();
+ //   void on_migrateDINNode();  
     void on_payButton_clicked();
     void on_setupSinovateButton_clicked();
 

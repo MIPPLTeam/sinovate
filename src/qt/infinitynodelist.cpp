@@ -129,7 +129,13 @@ InfinitynodeList::InfinitynodeList(const PlatformStyle *platformStyle, QWidget *
     mCheckAllNodesAction = new QAction(tr("Check ALL nodes status"), this);
     contextDINMenu->addAction(mCheckAllNodesAction);
     connect(mCheckAllNodesAction, SIGNAL(triggered()), this, SLOT(nodeSetupCheckAllDINNodes()));
-
+/*
+    mCheckNodeAction = new QAction(tr("Migrate"), this);
+    contextDINMenu = new QMenu();
+    contextDINMenu->addAction(mCheckNodeAction);
+    connect(ui->dinTable, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextDINMenu(const QPoint&)));
+    connect(mCheckNodeAction, SIGNAL(triggered()), this, SLOT(on_migrateDINNode()));
+*/
     QHeaderView *horizontalHeader;
     horizontalHeader = ui->dinTable->horizontalHeader();
     horizontalHeader->setContextMenuPolicy(Qt::CustomContextMenu);     //set contextmenu
@@ -530,7 +536,21 @@ void InfinitynodeList::on_checkDINNode()
     mCheckNodeAction->setEnabled(true);
 
 }
+/*
+void InfinitynodeList::on_migrateDINNode()
+{
+    QItemSelectionModel* selectionModel = ui->dinTable->selectionModel();
+    QModelIndexList selected = selectionModel->selectedRows();
+    if(selected.count() != 1) return;
 
+    QModelIndex index = selected.at(0);
+    int nSelectedRow = index.row();
+    mCheckNodeAction->setEnabled(false);
+    nodeSetupCheckDINNode(nSelectedRow, true);
+    mCheckNodeAction->setEnabled(true);
+
+}
+*/
 void InfinitynodeList::nodeSetupCheckDINNode(int nSelectedRow, bool bShowMsg )    {
 
     if(!isSynced()) return;
@@ -1191,17 +1211,20 @@ QString InfinitynodeList::nodeSetupRPCBurnFund( QString collateralAddress, CAmou
         else {
             ui->labelMessage->setStyleSheet("QLabel { font-size:14px;font-weight:bold;color: red}");
             ui->labelMessage->setText(QString::fromStdString(tr("ERROR infinitynodeburnfund: Unknown response").toStdString()));
+LogPrintf("nodeSetup::nodeSetupRPCBurnFund:  Unknown response   -- \n");
         }
     }
     catch (const UniValue& objError)
     {
         ui->labelMessage->setStyleSheet("QLabel { font-size:14px;color: red}");
         ui->labelMessage->setText( QString::fromStdString(find_value(objError, "message").get_str()) );
+LogPrintf("nodeSetup::nodeSetupRPCBurnFund:  RPC error %s  -- \n",find_value(objError, "message").get_str());        
     }
     catch ( std::runtime_error e)
     {
         ui->labelMessage->setStyleSheet("QLabel { font-size:14px;color: red}");
         ui->labelMessage->setText(QString::fromStdString(tr("ERROR infinitynodeburnfund: Unexpected error ").toStdString()) + QString::fromStdString( e.what() ));
+LogPrintf("nodeSetup::nodeSetupRPCBurnFund:  runtime exception   -- \n");
     }
     return burnTx;
 }
@@ -2025,7 +2048,7 @@ UniValue InfinitynodeList::nodeSetupCallRPC(string args)
     vector<string> vArgs;
     string uri;
 
-//LogPrintf("nodeSetupCallRPC  %s\n", args);
+LogPrintf("nodeSetupCallRPC  %s\n", args);
 
     boost::split(vArgs, args, boost::is_any_of(" \t"));
     string strMethod = vArgs[0];
