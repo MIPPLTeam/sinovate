@@ -129,13 +129,12 @@ InfinitynodeList::InfinitynodeList(const PlatformStyle *platformStyle, QWidget *
     mCheckAllNodesAction = new QAction(tr("Check ALL nodes status"), this);
     contextDINMenu->addAction(mCheckAllNodesAction);
     connect(mCheckAllNodesAction, SIGNAL(triggered()), this, SLOT(nodeSetupCheckAllDINNodes()));
-/*
-    mCheckNodeAction = new QAction(tr("Migrate"), this);
-    contextDINMenu = new QMenu();
-    contextDINMenu->addAction(mCheckNodeAction);
+
+    mMigrateNodesAction = new QAction(tr("Migrate node"), this);
+    contextDINMenu->addAction(mMigrateNodesAction);
     connect(ui->dinTable, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextDINMenu(const QPoint&)));
-    connect(mCheckNodeAction, SIGNAL(triggered()), this, SLOT(on_migrateDINNode()));
-*/
+    connect(mMigrateNodesAction, SIGNAL(triggered()), this, SLOT(on_migrateDINNode()));
+
     QHeaderView *horizontalHeader;
     horizontalHeader = ui->dinTable->horizontalHeader();
     horizontalHeader->setContextMenuPolicy(Qt::CustomContextMenu);     //set contextmenu
@@ -238,6 +237,7 @@ InfinitynodeList::~InfinitynodeList()
     delete ui;
     delete ConnectionManager;
     delete mCheckNodeAction;
+    delete mMigrateNodesAction;
     delete mCheckAllNodesAction;
     for(auto const& value: contextDINColumnsActions) {
         delete value.second;
@@ -534,9 +534,9 @@ void InfinitynodeList::on_checkDINNode()
     mCheckNodeAction->setEnabled(false);
     nodeSetupCheckDINNode(nSelectedRow, true);
     mCheckNodeAction->setEnabled(true);
-
+    contextDINMenu->close();
 }
-/*
+
 void InfinitynodeList::on_migrateDINNode()
 {
     QItemSelectionModel* selectionModel = ui->dinTable->selectionModel();
@@ -545,12 +545,20 @@ void InfinitynodeList::on_migrateDINNode()
 
     QModelIndex index = selected.at(0);
     int nSelectedRow = index.row();
-    mCheckNodeAction->setEnabled(false);
-    nodeSetupCheckDINNode(nSelectedRow, true);
-    mCheckNodeAction->setEnabled(true);
 
+    // switch to setUP tab
+    ui->tabWidget->setCurrentIndex(1);
+    if ( bNodeSetupLogged )    {   // enable burnTx selection
+        QString strBurnTx = ui->dinTable->item(nSelectedRow, 6)->text();
+        // restore selection (if still exists)
+        int index = ui->comboBurnTx->findData(strBurnTx);
+        if ( index != -1 ) { // -1 for not found
+            ui->comboBurnTx->setCurrentIndex(index);
+        }
+    }
+    contextDINMenu->close();
 }
-*/
+
 void InfinitynodeList::nodeSetupCheckDINNode(int nSelectedRow, bool bShowMsg )    {
 
     if(!isSynced()) return;

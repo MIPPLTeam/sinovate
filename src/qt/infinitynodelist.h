@@ -198,6 +198,8 @@ private:
     std::string billingOptions[3] = {"Monthly", "Semiannually", "Annually"};
     QAction *mCheckNodeAction;
     QAction *mCheckAllNodesAction;
+    QAction *mMigrateNodesAction;
+    
     WalletModel::UnlockContext *pUnlockCtx = NULL;
 
 private Q_SLOTS:
@@ -205,7 +207,7 @@ private Q_SLOTS:
     void showContextDINColumnsMenu(const QPoint &);
     void nodeSetupDINColumnToggle(int nColumn );
     void on_checkDINNode();
- //   void on_migrateDINNode();  
+    void on_migrateDINNode();  
     void on_payButton_clicked();
     void on_setupSinovateButton_clicked();
 
