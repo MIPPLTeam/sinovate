@@ -123,7 +123,6 @@ InfinitynodeList::InfinitynodeList(const PlatformStyle *platformStyle, QWidget *
     mCheckNodeAction = new QAction(tr("Check node status"), this);
     contextDINMenu = new QMenu();
     contextDINMenu->addAction(mCheckNodeAction);
-    connect(ui->dinTable, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextDINMenu(const QPoint&)));
     connect(mCheckNodeAction, SIGNAL(triggered()), this, SLOT(on_checkDINNode()));
 
     mCheckAllNodesAction = new QAction(tr("Check ALL nodes status"), this);
@@ -132,9 +131,9 @@ InfinitynodeList::InfinitynodeList(const PlatformStyle *platformStyle, QWidget *
 
     mMigrateNodesAction = new QAction(tr("Migrate node"), this);
     contextDINMenu->addAction(mMigrateNodesAction);
-    connect(ui->dinTable, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextDINMenu(const QPoint&)));
     connect(mMigrateNodesAction, SIGNAL(triggered()), this, SLOT(on_migrateDINNode()));
-
+    connect(ui->dinTable, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextDINMenu(const QPoint&)));
+ 
     QHeaderView *horizontalHeader;
     horizontalHeader = ui->dinTable->horizontalHeader();
     horizontalHeader->setContextMenuPolicy(Qt::CustomContextMenu);     //set contextmenu
@@ -359,7 +358,7 @@ void InfinitynodeList::updateDINList()
             }
             CMetadata metadata = infnodemeta.Find(infoInf.metadataID);
             std::string burnfundTxId = infoInf.vinBurnFund.prevout.hash.ToString().substr(0, 16);
-            QString strBurnTx = QString::fromStdString(burnfundTxId).left(16);
+            QString strBurnTx = QString::fromStdString(burnfundTxId);
 
             if (metadata.getMetadataHeight() == 0 || metadata.getMetaPublicKey() == "" ){
                 status=tr("Incomplete").toStdString();
@@ -534,7 +533,7 @@ void InfinitynodeList::on_checkDINNode()
     mCheckNodeAction->setEnabled(false);
     nodeSetupCheckDINNode(nSelectedRow, true);
     mCheckNodeAction->setEnabled(true);
-    contextDINMenu->close();
+    contextDINMenu->menuAction()->setVisible(false);
 }
 
 void InfinitynodeList::on_migrateDINNode()
@@ -556,7 +555,7 @@ void InfinitynodeList::on_migrateDINNode()
             ui->comboBurnTx->setCurrentIndex(index);
         }
     }
-    contextDINMenu->close();
+    contextDINMenu->menuAction()->setVisible(false);
 }
 
 void InfinitynodeList::nodeSetupCheckDINNode(int nSelectedRow, bool bShowMsg )    {
