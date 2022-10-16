@@ -357,7 +357,7 @@ void InfinitynodeList::updateDINList()
                 continue;
             }
             CMetadata metadata = infnodemeta.Find(infoInf.metadataID);
-            std::string burnfundTxId = infoInf.vinBurnFund.prevout.hash.ToString().substr(0, 16);
+            std::string burnfundTxId = infoInf.vinBurnFund.prevout.hash.ToString();
             QString strBurnTx = QString::fromStdString(burnfundTxId);
 
             if (metadata.getMetadataHeight() == 0 || metadata.getMetaPublicKey() == "" ){
@@ -549,6 +549,7 @@ void InfinitynodeList::on_migrateDINNode()
     ui->tabWidget->setCurrentIndex(1);
     if ( bNodeSetupLogged )    {   // enable burnTx selection
         QString strBurnTx = ui->dinTable->item(nSelectedRow, 6)->text();
+
         // restore selection (if still exists)
         int index = ui->comboBurnTx->findData(strBurnTx);
         if ( index != -1 ) { // -1 for not found
